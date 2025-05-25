@@ -1,0 +1,7 @@
+streamlit==1.35.0
+pandas==2.2.2
+scikit-learn==1.4.2
+numpy==1.26.4
+nltk==3.8.1         # If using NLTK for text preprocessing
+spacy==3.7.4        # If using spaCy for NLP
+joblib==1.4.2       # If the model was saved using joblib
