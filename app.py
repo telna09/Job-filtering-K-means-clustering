@@ -1,67 +1,45 @@
-import logging
-from job_system import JobClassificationSystem
+import streamlit as st
+import pandas as pd
+import pickle
+import json
+import os
 
-# Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# --- Load model ---
+MODEL_PATH = 'models/job_classifier_20250525_062748.pkl'
+with open(MODEL_PATH, 'rb') as f:
+    model = pickle.load(f)
 
-def display_menu():
-    print("\n--- Job Classification System ---")
-    print("1. Train Model")
-    print("2. Match Jobs to User Preferences")
-    print("3. Send Email Alert")
-    print("4. Exit")
+# --- Load processed jobs ---
+PROCESSED_DATA_PATH = 'data/processed_jobs_20250525_062748.csv'
+df = pd.read_csv(PROCESSED_DATA_PATH)
 
-def main():
-    system = JobClassificationSystem()
-    model_data = None
-    matched_jobs = []
+# --- Load user preferences ---
+USER_PREFS_PATH = 'sample_data/user_preferences.json'
+with open(USER_PREFS_PATH, 'r') as f:
+    user_prefs = json.load(f)
 
-    while True:
-        display_menu()
-        choice = input("Enter your choice (1-4): ").strip()
+# --- Streamlit UI ---
+st.set_page_config(page_title="Job Recommender", layout="wide")
+st.title("💼 Job Clustering & Recommender App")
 
-        if choice == '1':
-            terms_input = input("Enter search terms (comma-separated, default: Software Engineer): ").strip()
-            search_terms = [term.strip() for term in terms_input.split(',')] if terms_input else ['Software Engineer']
-            model_data = system.train_model(search_terms=search_terms)
-            if model_data:
-                logger.info("Model trained successfully.")
-            else:
-                logger.warning("Model training failed or returned no data.")
+st.subheader("User Preferences")
+st.json(user_prefs)
 
-        elif choice == '2':
-            if not model_data:
-                logger.warning("Please train the model first.")
-                continue
+# --- Filter or cluster jobs based on user prefs ---
+# For example, cluster assignment:
+if hasattr(model, 'predict'):
+    if 'vectorizer' in dir(model):  # If vectorizer is part of a pipeline
+        clusters = model.predict(df['job_description'])
+    else:
+        # Assuming text is already vectorized
+        clusters = model.predict(df)
 
-            preferences = input("Enter your preferences (comma-separated skills): ").strip()
-            user_skills = [skill.strip() for skill in preferences.split(',')]
-            matched_jobs = system.match_user(user_skills)
-            if matched_jobs:
-                print("\nMatched Jobs:")
-                for job in matched_jobs:
-                    print(f"{job['title']} at {job['company']} ({job['location']})")
-                    print(f"  Skills: {job['skills']}")
-                    print(f"  URL: {job['url']}\n")
-            else:
-                print("No jobs matched your preferences.")
+    df['Cluster'] = clusters
 
-        elif choice == '3':
-            if not matched_jobs:
-                logger.warning("No matched jobs to send. Match jobs first.")
-                continue
+st.subheader("Clustered Jobs")
 
-            to_email = input("Enter recipient email address: ").strip()
-            system.send_alerts(matched_jobs, to_email)
-            print("Email alert sent successfully.")
+selected_cluster = st.selectbox("Select cluster to view jobs", sorted(df['Cluster'].unique()))
 
-        elif choice == '4':
-            print("Exiting the application.")
-            break
+st.write(df[df['Cluster'] == selected_cluster][['job_title', 'company', 'location', 'description']])
 
-        else:
-            print("Invalid choice. Please select from 1 to 4.")
-
-if __name__ == "__main__":
-    main()
+# Optional: Add email alert system, filtering, etc.
