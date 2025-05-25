@@ -1,0 +1,55 @@
+[
+  {
+    "user_id": 1,
+    "name": "Alice Johnson",
+    "email": "alice.johnson@example.com",
+    "skills_of_interest": [
+      "python",
+      "machine learning",
+      "data science",
+      "tensorflow"
+    ],
+    "preferred_locations": [
+      "bangalore",
+      "mumbai",
+      "pune"
+    ],
+    "min_experience": 2,
+    "max_experience": 5,
+    "notification_frequency": "daily",
+    "last_notified": null
+  },
+  {
+    "user_id": 2,
+    "name": "Bob Smith",
+    "email": "bob.smith@example.com",
+    "skills_of_interest": [
+      "react",
+      "javascript",
+      "nodejs",
+      "aws"
+    ],
+    "preferred_locations": [
+      "delhi",
+      "noida",
+      "gurgaon"
+    ],
+    "min_experience": 1,
+    "max_experience": 3,
+    "notification_frequency": "weekly",
+    "last_notified": null
+  },
+  {
+    "name": "Telna Chacko",
+    "email": "telnachackop@gmail.com",
+    "skills_of_interest": [
+      "data science"
+    ],
+    "preferred_locations": [
+      "kochi"
+    ],
+    "notification_frequency": "daily",
+    "user_id": 3,
+    "last_notified": null
+  }
+]
